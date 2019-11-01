@@ -1,15 +1,10 @@
 module Matrix where
-
-
 import Data.List    
 
 
--- :set +m   Serve para habilitar multiplas linhas no interpretador
-
-
 -- Cria uma matrix x linhas e y colunas inicializada com z
-matrix_create :: Int -> Int -> a -> [[a]];
-matrix_create x y z = replicate y (replicate x z);
+create :: Int -> Int -> a -> [[a]];
+create x y z = replicate y (replicate x z);
 
 
 -- Retorna o elemento da linha x e coluna y
@@ -31,8 +26,8 @@ column matrix y = matrix!!y;
 
 
 -- Muda o valor de um elemento na matriz
---set_element :: [[element]] -> Int -> Int -> element -> [[element]]
---set_element matrix x y a = element matrix x y = a 
+--replace :: [[element]] -> Int -> Int -> element -> [[element]]
+--replace matrix x y a = element matrix x y = a 
 
 
 -- Printa a matriz 
