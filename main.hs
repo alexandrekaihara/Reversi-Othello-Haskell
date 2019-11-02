@@ -1,21 +1,21 @@
 module Main where
 
-    {-Data import-}
-    import Data.Char
-    import Data.Map (Map, (!))
-    import qualified Data.Map as Map
-    {-This project imports-}
-    import Generic
-    import Reversi
+import Generic
+import Reversi
+import Data.Char
+import Interaction
+import Data.Map (Map, (!))
+import qualified Data.Map as Map
 
--- Compiacao: ghc --make main.hs
+
+mapsize = 8
+
+
+-- Compilacao: ghc --make main.hs
 -- :set +m   Serve para habilitar multiplas linhas no interpretador
-
-sizemap = 8
-
+main :: IO()
 main = do 
 {
-    let a = line (create 4 4 (0, ' ')) 3 
-    in  print (a)
-    
+    showEnterDialog;
+
 }

@@ -1,21 +1,29 @@
 module Reversi where
-import Matrix
+
+import Generic
+import Data.Char
+import Interaction
+import Data.Map (Map, (!))
+import qualified Data.Map as Map
 
 
--- Cria o mapa de tamanho n 
---create_map :: Int -> [[a]]
---create_map n = 
+{-Representação do jogo: Tabuleiro e duas listas de movimentos possíveis.-}
+data Reversi = 
+	Reversi
+	(Board)
+    Moves
+    deriving (Show)
+
+{-Tabuleiro dos navios do usuário-}
+type Board  = Map (Int,Int) Char
+{-Lista de tuplas, para o pc e o player saberem as jogadas possíveis-}
+type Moves = [(Int,Int)] 
 
 
--- Gera uma lista de movimentos possiveis a partir da lista de pecas do jogador
--- catch_moves :: [[element]] -> [element] -> [coord]
--- catch_moves = 
+{- --------------------------------------------
+   Funções de controle do jogo
+   ---------------------------------------------}
 
-
--- Pega um par ordenado de um movimento válido gerado por catch_moves
--- getmove :: IO () -> (Int, Int)
--- getmove =
-
-
--- Recebe o movimento e faz alteracoes devidas no mapa
--- applymove :: (Int, Int) -> ()
+{-Cria um novo tabuleiro vazio-}
+newBoard :: IO Reversi
+newBoard = return (Reversi Map.empty [])
