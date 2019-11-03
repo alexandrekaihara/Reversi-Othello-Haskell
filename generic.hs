@@ -11,10 +11,9 @@ import qualified Data.Map as Map
    ---------------------------------------------}
 
 {-Caracter que representa as fichas do jogador-}
-tokens :: Int -> Char
-tokens 0 = 'O'
-tokens 1 = 'X'
-tokens 2 = ' '
+player :: Int -> Char
+player 0 = 'O'
+player 1 = 'X'
 
 
 {- --------------------------------------------
@@ -28,22 +27,21 @@ readTuple s = read s::(Int,Int)
 {-Tail seguro, funciona para string vazia-}
 myTail :: [a] -> [a]
 myTail s
-	| null s    = []
+	| null s = []
 	| otherwise = tail s
 
 {-String de número em 2 caracteres-}
 show2Dig :: Int -> String
-show2Dig n
-	| n < 10    = "│ " ++ (show n)
-	| otherwise = show n
+show2Dig n = "│ " ++ (show n)
 
-{-Imprime as linhas de duas strings simultaneamente-}
-printBoth :: String -> String -> Int -> String
-printBoth _  _ 10 = [] 
-printBoth [] [] n = []
-printBoth s1 s2 n =
-	((lines s1) !! n) ++ " " ++ ((lines s2) !! n) ++ "\n"
-		++ printBoth s1 s2 (n+1)
+{-Imprime as linhas das linhas de strings simultaneamente-}
+printlines :: String -> Int -> Int-> String
+printlines [] n mapsize = []
+printlines s1 n mapsize = ((lines s1) !! n) ++ "\n" ++ 
+	(if(n+1 < mapsize)
+		then printlines s1 (n+1) mapsize
+		else "")
+	
 
 {-Função que transforma uma lista de tuplas em uma 
 string contendo as tuplas-}

@@ -60,16 +60,19 @@ showB :: Map (Int,Int) Char -> (Int,Int) -> Int -> String
 showB m t@(i,j) mapsize 
     {-Imprimindo as bordas esquerdas-}
     | j == 0    = if (i < mapsize)
-                    then 
-                        (" " ++ show2Dig (i-1)) ++ " │ " ++ (showB m (i,j+1) mapsize)
-                        else
-                            ""
+                    then if (Map.notMember t m)
+                        then (" " ++ show2Dig (i)) ++ "\t│ |"  ++ (showB m (i,j+1) mapsize)
+                        else (" " ++ show2Dig (i)) ++ "\t│"  ++ (m ! (i,j):"|") ++ (showB m (i,j+1) mapsize)
+                    else ""
     {-Imprimindo as bordas direitas-}
-    | j == 11   = if (i > 10)
-                    then " │\n"
-                    else (" │\n" ++ showB m (i+1,0) mapsize)
-    | otherwise = if (Map.notMember t m)
-                    {-Imprimindo espaço vazio-}
-                    then ((tokens 2) : showB m (i,j+1) mapsize)
-                    {-Imprimindo as peças ja posicionadas-}
-                    else ((m ! (i,j):" ") ++ showB m (i,j+1) mapsize)
+    | j == mapsize = if (i < mapsize)
+                    then ("│\n" ++ showB m (i+1,0) mapsize)
+                    else "│\n"
+    {-Imprimindo conteudo das casas-}
+    | otherwise = if(j == (mapsize - 1))
+                    then if (Map.notMember t m)
+                        then ((' ') : ("" ++ showB m (i,j+1) mapsize))
+                        else ((m ! (i,j):"") ++ showB m (i,j+1) mapsize)
+                    else if (Map.notMember t m)
+                        then ((' ') : ("|" ++ showB m (i,j+1) mapsize))
+                        else ((m ! (i,j):"|") ++ showB m (i,j+1) mapsize)
