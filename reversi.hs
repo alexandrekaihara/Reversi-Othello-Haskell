@@ -45,24 +45,25 @@ mapInsert :: [(Int,Int)] -> [Char] -> Map (Int,Int) Char
 mapInsert [] [] = Map.empty
 mapInsert (h1:tl1) (h2:tl2) = Map.insert h1 h2 (mapInsert tl1 tl2)
 
-{-Realiza o movimento no tabuleiro-}
-makemove :: Reversi -> (Int,Int) -> Int -> IO Reversi
-makemove (Reversi b m) indice token = return (Reversi (Map.insert indice (player token) b) m)
-
 {-Conta o numero peças no tabuleiro-}
 numberoftokens :: Map (Int,Int) Char -> (Int, Int) -> Int -> Int -> Int -> (Int, Int)
 numberoftokens m t@(i,j) mapsize numberofO numberofX = do
     if(j <  mapsize)
-      then if (Map.notMember t m)
-        then numberoftokens m (i,j+1) mapsize numberofO numberofX
-        else if ((m ! (i,j)) == 'O')
-          then numberoftokens m (i,j+1) mapsize (numberofO+1) numberofX
-          else numberoftokens m (i,j+1) mapsize numberofO (numberofX+1)
-      else if (j == mapsize)
-        then if (i < mapsize) 
-          then numberoftokens m (i+1,0) mapsize numberofO numberofX
-          else (numberofO,numberofX)
-        else (numberofO,numberofX)
+        then if (Map.notMember t m)
+            then numberoftokens m (i,j+1) mapsize numberofO numberofX
+            else if ((m ! (i,j)) == 'O')
+                then numberoftokens m (i,j+1) mapsize (numberofO+1) numberofX
+                else numberoftokens m (i,j+1) mapsize numberofO (numberofX+1)
+        else if (j == mapsize)
+            then if (i < mapsize) 
+                then numberoftokens m (i+1,0) mapsize numberofO numberofX
+                else (numberofO,numberofX)
+            else (numberofO,numberofX)
+
+{-Realiza o movimento no tabuleiro-}
+makemove :: Reversi -> (Int,Int) -> Int -> IO Reversi
+makemove (Reversi b m) indice token = return (Reversi (Map.insert indice (player token) b) m)
+
 
 {- --------------------------------------------
    Funções de manipulação da lista do jogo
@@ -72,7 +73,29 @@ numberoftokens m t@(i,j) mapsize numberofO numberofX = do
 getMoveslist :: Reversi -> [(Int,Int)]
 getMoveslist (Reversi b m) = m
 
-
+{-Verifica se o tiro do usuário é válido-}
+checkMove :: Reversi -> (Int, Int) -> Bool
+checkMove rv@(Reversi b m) coord = do
+    if(elem coord m) 
+        then True
+        else False
+  
+{-Pega uma tupla do usuário-}
+getMove :: Reversi -> Int -> Int -> IO Reversi
+getMove rv@(Reversi b m) mapsize player = do
+      putStrLn ("Seleciona as coordenadas do seu próximo movimento\n")
+      putStrLn ("Eixo x: de 0 a " ++ (show (mapsize-1)))
+      x <- (getOpt mapsize)
+      putStrLn ("Eixo y: de 0 a " ++ (show (mapsize-1)))
+      y <- (getOpt mapsize)
+      {-Verifica se o movimento é válido-}
+      if (checkMove rv (makeTuple x y))
+        then (makemove rv (makeTuple x y) player)
+        else do 
+          putStrLn ("Movimento inválido. Selecione outro.")
+          getMove rv mapsize player
+      
+  
 
 {- --------------------------------------------
    Funções de controle do jogo
@@ -82,6 +105,6 @@ getMoveslist (Reversi b m) = m
 checkEnd :: Map (Int,Int) Char -> Int -> Bool
 checkEnd m mapsize = do
     if ((numberofO == 0) || (numberofX == 0) || ((numberofO + numberofX) >= (mapsize*mapsize)))
-      then True
-      else False
+        then True
+        else False
     where (numberofO, numberofX) = (numberoftokens m (0,0) mapsize 0 0)

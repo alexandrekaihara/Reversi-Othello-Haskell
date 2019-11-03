@@ -21,8 +21,8 @@ player 1 = 'X'
    ---------------------------------------------}
 
 {-Lê uma string para um tupla de Int-}
-readTuple :: String -> (Int,Int)
-readTuple s = read s::(Int,Int)
+makeTuple :: String -> String -> (Int,Int)
+makeTuple x y = ((read x),(read y))
 
 {-Tail seguro, funciona para string vazia-}
 myTail :: [a] -> [a]

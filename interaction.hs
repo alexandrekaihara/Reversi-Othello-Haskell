@@ -11,13 +11,13 @@ import qualified Data.Map as Map
 
 {-Comando para dar scape no terminal-}
 cleanScreen :: IO()
-cleanScreen = putStr "\ESC[2J"
+cleanScreen = putStrLn "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 
 {-Imprime as strings de uma lista de string-}
 showLines :: [String] -> IO()
 showLines [] = return ()
 showLines s = do 
-    putStrLn (head s)
+    putStrLn  (head s)
     showLines (tail s)
 
 {-Exibe mensagem inicial do jogo-}
