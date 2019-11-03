@@ -12,7 +12,7 @@ mapsize = 8
 player  = 0
 
 
--- Compilacao: ghc --make main.hs
+-- Compilacao: ghc main
 -- :set +m   Serve para habilitar multiplas linhas no interpretador
 main :: IO()
 main = do 
@@ -20,5 +20,8 @@ main = do
     b <- initBoard mapsize
     showBoard b mapsize
     print(numberoftokens (getBoard b) (0,0) mapsize 0 0)
+    putStrLn "Entre um valor:"
     print(checkEnd (getBoard b) mapsize)
+    a <- getOpt mapsize
+    print (a)
     

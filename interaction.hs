@@ -38,23 +38,6 @@ showVictory = do
     cont <- readFile ".entermsg"
     showLines (take 7 (drop 32 (lines cont)))
 
-
-{- --------------------------------------------
-    Funções de interação com usuário
-    ---------------------------------------------}
-
-{-Lê uma opção (Char) do teclado e valida-}
-getOpt :: String -> IO Char
-getOpt s = do
-    x <- getChar
-    putStrLn ""
-    if (elem x s)
-    then
-        return x
-        else do
-        putStrLn " Opção inválida. Por favor selecionar novamente."
-        getOpt s
-
 {-Retorna a string com a visão do usuário de seu tabuleiro-}
 showB :: Map (Int,Int) Char -> (Int,Int) -> Int -> String
 showB m t@(i,j) mapsize 
@@ -76,3 +59,21 @@ showB m t@(i,j) mapsize
                     else if (Map.notMember t m)
                         then ((' ') : ("|" ++ showB m (i,j+1) mapsize))
                         else ((m ! (i,j):"|") ++ showB m (i,j+1) mapsize)
+
+
+{- --------------------------------------------
+    Funções de interação com usuário
+    ---------------------------------------------}
+
+{-Lê uma opção (Char) do teclado e valida-}
+getOpt :: Int -> IO String
+getOpt mapsize= do
+    x <- getLine
+    let option = (read x)
+    if (option < mapsize)
+        then return x
+        else do
+            putStrLn " Opção inválida. Por favor selecionar novamente."
+            getOpt mapsize
+
+
