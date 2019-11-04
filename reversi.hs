@@ -29,7 +29,7 @@ initBoard :: Int -> IO Reversi
 initBoard mapsize = do
     let position = (quot mapsize 2)
     let coord = [(position-1, position-1), (position, position-1), (position-1, position), (position, position)]
-    let caractere = [player 0, player 1, player 1, player 0] 
+    let caractere = [player 1, player 0, player 0, player 1] 
     return (Reversi (mapInsert coord caractere) [])
 
 {-Exibe o tabuleiro do usuário-}
@@ -83,63 +83,67 @@ checkMove rv@(Reversi b m) coord = do
 {-Pega uma tupla do usuário-}
 getMove :: Reversi -> Int -> Int -> IO Reversi
 getMove rv@(Reversi b m) mapsize player = do
-      putStrLn ("Seleciona as coordenadas (player "++ (show player) ++ ")\n")
-      putStrLn ("Eixo x: de 0 a " ++ (show (mapsize-1)))
-      x <- (getOpt mapsize)
-      putStrLn ("Eixo y: de 0 a " ++ (show (mapsize-1)))
-      y <- (getOpt mapsize)
-      {-Verifica se o movimento é válido-}
-      if (checkMove rv (makeTuple x y))
-        then (makemove rv (makeTuple x y) player)
-        else do 
-          cleanScreen
-          showBoard rv mapsize
-          putStrLn ("Movimento inválido. Selecione outro.")
-          getMove rv mapsize player
+    print m
+    putStrLn ("Seleciona as coordenadas (player "++ (show player) ++ ")\n")
+    putStrLn ("Eixo x: de 0 a " ++ (show (mapsize-1)))
+    x <- (getOpt mapsize)
+    putStrLn ("Eixo y: de 0 a " ++ (show (mapsize-1)))
+    y <- (getOpt mapsize)
+    {-Verifica se o movimento é válido-}
+    if (checkMove rv (makeTuple y x))
+    then (makemove rv (makeTuple y x) player)
+    else do 
+        cleanScreen
+        showBoard rv mapsize
+        putStrLn ("Movimento inválido. Selecione outro.")
+        getMove rv mapsize player
 
-{-Pega a linha requerida-}
-getLinefromMap :: Map (Int, Int) Char -> (Int, Int) -> Int -> [Char] -> Int -> [Char] 
-getLinefromMap _ _ _ [] _ = []
-getLinefromMap m t@(i,j) mapsize linemember line
-    | i < mapsize = do 
-        if (Map.notMember t m)
-            then getLinefromMap m (i+1,line) mapsize (linemember ++ " ") line 
-            else getLinefromMap m (i+1,line) mapsize (linemember ++ [(m ! t)]) line
-    | i == mapsize = linemember
+{-Retorna todas as coordenadas de todos os espaços vazios do tabuleiro
+  OBS: valor da coordenada inicial deve ser (0,0)-}
+getAllBlanks :: Map (Int, Int) Char -> Int-> (Int, Int) -> [(Int, Int)] -> [(Int, Int)]
+getAllBlanks m mapsize t@(i,j) lista
+    | j < mapsize = if (Map.notMember t m)
+            then getAllBlanks m mapsize (i,j+1) (lista ++ [t])
+            else getAllBlanks m mapsize (i,j+1) lista
+    | i < mapsize - 1 = do
+        getAllBlanks m mapsize (i+1,0) lista
+    | otherwise   = lista
 
-{-Pega a coluna requerida-}    
-getColumnfromMap :: Map (Int, Int) Char -> (Int, Int) -> Int -> [Char] -> Int -> [Char] 
-getColumnfromMap _ _ _ [] _ = []
-getColumnfromMap m t@(i,j) mapsize columnmember column
-    | j < mapsize = do 
-        if (Map.notMember t m)
-            then getColumnfromMap m (column,j+1) mapsize (columnmember ++ " ") column
-            else getColumnfromMap m (column,j+1) mapsize (columnmember ++ [(m ! t)]) column
-    | j == mapsize = columnmember
+{-Retorna uma tupla com a direção especificada-}
+next :: (Int, Int) -> Int -> (Int, Int)
+next t@(i,j) direction
+    | direction == 0 = (i-1,j-1)
+    | direction == 1 = (i-1,j  )
+    | direction == 2 = (i-1,j+1)
+    | direction == 3 = (i  ,j+1)
+    | direction == 4 = (i+1,j+1)
+    | direction == 5 = (i+1,j  )
+    | direction == 6 = (i+1,j-1)
+    | direction == 7 = (i  ,j-1)
+    | otherwise = t   
 
-{-Pega a Diagonal descendente requerida
-  OBS: a tupla deve ter sempre j = 0-}    
-getDownDiagonalfromMap :: Map (Int, Int) Char -> (Int, Int) -> Int -> [Char] -> [Char] 
-getDownDiagonalfromMap _ _ _ [] = []
-getDownDiagonalfromMap m t@(i,j) mapsize diagonalmember 
-    | ((j < mapsize) && (i < mapsize)) = do 
-        if (Map.notMember t m)
-            then getDownDiagonalfromMap m (i+1,j+1) mapsize (diagonalmember ++ " ") 
-            else getDownDiagonalfromMap m (i+1,j+1) mapsize (diagonalmember ++ [(m ! t)])
-    | j == mapsize = diagonalmember
+{-Dado um espaço vazio no tabuleiro, retorna um bool se pode ser realizado um movimento
+  expandindo recursivamente em todas as direções-}
+analyzeBlank :: Map (Int, Int) Char -> Int -> Int -> (Int,Int) -> (Int,Int) -> Int -> Bool
+analyzeBlank m mapsize token t@(i,j) t2@(i1,j1) direction
+    | (i < 0 || j < 0 || i >= mapsize || j >= mapsize) = analyzeBlank m mapsize token t t (direction+1)
+    | direction < 8 = 
+        if ((Map.member (next t2 direction) m) && (m ! (next t2 direction)) /= (player token))  
+            then analyzeBlank m mapsize token t (next t2 direction) direction    
+            else if (Map.notMember t2 m)                              
+                then analyzeBlank m mapsize token t t (direction+1)
+                else if ((Map.member (next t2 direction) m) && (m ! (next t2 direction)) == (player token))
+                    then True
+                    else analyzeBlank m mapsize token t t (direction+1)    
+    | otherwise = False
 
-{-Pega a Diagonal ascendente requerida
-  OBS: a tupla deve ter sempre j = 0-}    
-getUpDiagonalfromMap :: Map (Int, Int) Char -> (Int, Int) -> Int -> [Char] -> [Char] 
-getUpDiagonalfromMap _ _ _ [] = []
-getUpDiagonalfromMap m t@(i,j) mapsize diagonalmember 
-    | ((j < mapsize) && (i < mapsize)) = do 
-        if (Map.notMember t m)
-            then getUpDiagonalfromMap m (i-1,j-1) mapsize (diagonalmember ++ " ") 
-            else getUpDiagonalfromMap m (i-1,j-1) mapsize (diagonalmember ++ [(m ! t)])
-    | j == mapsize = diagonalmember
+{-Retorna um reversi com todos os movimentos possíveis no mapa-}
+findMoves :: Reversi -> Int -> Int -> [(Int, Int)] -> IO Reversi
+findMoves rv@(Reversi b m) mapsize token lista@(x:xs)
+    | xs == [] = return(Reversi b m)
+    | analyzeBlank b mapsize token x x 0 = findMoves (Reversi b (m ++ [x])) mapsize token xs
+    | otherwise =  findMoves (Reversi b m) mapsize token xs
 
- 
 
 {- --------------------------------------------
    Funções de controle do jogo
@@ -157,31 +161,27 @@ checkEnd m mapsize = do
 playRV :: Reversi -> Int -> Int -> Int -> IO()
 playRV rv@(Reversi b m) mapsize player twoplayer = do
 	{-Verifica se o jogo acabou-}
-  if (checkEnd b mapsize)
-      then do
-        cleanScreen
-        showBoard rv mapsize
-        if (player == 0)
-            then showVictory
-            else showDefeat
-        return ()
-      {-Iterador loop dos jogadores 0 e 1-}
-      else if (player == 0 || twoplayer == 1)
-          {-Se for o turno do jogador 0-}
-          then do
-              {-Limpando a tela-}
-              cleanScreen
-              {-Mostrando os tabuleiro-}
-              showBoard rv mapsize
-              
-              {-Se o jogador não tiver movimentos, não deve ler comandos-}
-              rv1 <- (getMove rv mapsize player)
-              playRV rv1 mapsize (abs(player - 1)) twoplayer
-          {-Se for o turno do jogador 1-}
-          else do
-              {-Limpando a tela-}
-              cleanScreen
-              {-Mostrando os tabuleiro-}
-              showBoard rv mapsize
-              rv2 <- (getMove rv mapsize player)
-              playRV rv2 mapsize (abs(player - 1)) twoplayer
+    if (checkEnd b mapsize)
+        then do
+            cleanScreen
+            showBoard rv mapsize
+            if (player == 0)
+                then showVictory
+                else showDefeat
+            return ()
+        {-Iterador loop dos jogadores 0 e 1-}
+        else if (player == 0 || twoplayer == 1)
+            {-Se for o turno do jogador 0-}
+            then do
+                cleanScreen                                                                             {-Limpa a tela-}
+                rv1 <- (findMoves (Reversi b []) mapsize player (getAllBlanks b mapsize (0,0) []))      {-Descobre uma lista de movimentos disponíveis-}
+                showBoard rv1 mapsize                                                                   {-Printa o tabuleiro no terminal-}
+                rv2 <- (getMove  rv1 mapsize player)                                                    {-Recebe um par ordenado como jogada-}
+                {-Inserir a função que muda as peças no mapa de acordo com o movimento escolhido-}
+                playRV rv2 mapsize (abs(player - 1)) twoplayer
+            {-Se for o turno da IA-}
+            else do
+                cleanScreen
+                showBoard rv mapsize
+                rv2 <- (getMove rv mapsize player)
+                playRV rv2 mapsize (abs(player - 1)) twoplayer
