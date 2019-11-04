@@ -11,7 +11,7 @@ import qualified Data.Map as Map
 
 {-Comando para dar scape no terminal-}
 cleanScreen :: IO()
-cleanScreen = putStrLn "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
+cleanScreen = putStrLn "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"
 
 {-Imprime as strings de uma lista de string-}
 showLines :: [String] -> IO()
@@ -65,15 +65,15 @@ showB m t@(i,j) mapsize
     Funções de interação com usuário
     ---------------------------------------------}
 
-{-Lê uma opção (Char) do teclado e valida-}
+{-Lê uma opção (Char) do teclado que seja menor que limit-}
 getOpt :: Int -> IO String
-getOpt mapsize= do
+getOpt limit = do
     x <- getLine
     let option = (read x)
-    if (option < mapsize)
+    if (option < limit)
         then return x
         else do
-            putStrLn " Opção inválida. Por favor selecionar novamente."
-            getOpt mapsize
+            putStrLn " Opção inválida. Por favor selecionar novamente.\n"
+            getOpt limit
 
 

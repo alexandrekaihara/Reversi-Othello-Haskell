@@ -10,7 +10,9 @@ import qualified Data.Map as Map
    Definições para o jogo
    ---------------------------------------------}
 
-{-Caracter que representa as fichas do jogador-}
+{-Caracter que representa as fichas do jogador
+  OBS: O jogador sempre é referenciado como 0 e 
+  o computador sempre como 1-}
 player :: Int -> Char
 player 0 = 'O'
 player 1 = 'X'
