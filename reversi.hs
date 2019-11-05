@@ -175,9 +175,9 @@ findMoves rv@(Reversi b m) mapsize player lista@(x:xs)
    ---------------------------------------------}
 
 {-Verifica se o jogo acabou-}
-checkEnd :: Reversi -> Int -> Bool
-checkEnd rv@(Reversi b m) mapsize = do
-    if ((numberofO == 0) || (numberofX == 0) || ((numberofO + numberofX) >= (mapsize*mapsize)))
+checkEnd :: Reversi -> Int -> Int -> Bool
+checkEnd rv@(Reversi b m) mapsize outmoves = do
+    if ((numberofO == 0) || (numberofX == 0) || ((numberofO + numberofX) >= (mapsize*mapsize)) || outmoves == 2)
         then True
         else False
     where   (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
@@ -193,7 +193,7 @@ playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
     {-    -Sem movimento dos dois players;    -}
     {-   -Um player ficou sem fichas;         -}
     {-   -Tabuleiro foi totalmente preenchido;-}
-    if (checkEnd rv1 mapsize || (outmoves == 2))
+    if (checkEnd rv1 mapsize outmoves)
         then do
             let (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
             if (numberofO >= numberofX)
