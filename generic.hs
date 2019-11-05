@@ -13,9 +13,9 @@ import qualified Data.Map as Map
 {-Caracter que representa as fichas do jogador
   OBS: O jogador sempre é referenciado como 0 e 
   o computador sempre como 1-}
-player :: Int -> Char
-player 0 = 'O'
-player 1 = 'X'
+token :: Int -> Char
+token 0 = 'O'
+token 1 = 'X'
 
 
 {- --------------------------------------------

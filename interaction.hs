@@ -42,23 +42,23 @@ showVictory = do
 showB :: Map (Int,Int) Char -> (Int,Int) -> Int -> String
 showB m t@(i,j) mapsize 
     {-Imprimindo as bordas esquerdas-}
-    | j == 0    = if (i < mapsize)
+    | i == 0    = if (j < mapsize)
                     then if (Map.notMember t m)
-                        then (" " ++ show2Dig (i)) ++ "\t│ |"  ++ (showB m (i,j+1) mapsize)
-                        else (" " ++ show2Dig (i)) ++ "\t│"  ++ (m ! (i,j):"|") ++ (showB m (i,j+1) mapsize)
+                        then (" " ++ show2Dig (j)) ++ "\t│ |"  ++ (showB m (i+1,j) mapsize)
+                        else (" " ++ show2Dig (j)) ++ "\t│"  ++ (m ! (i,j):"|") ++ (showB m (i+1,j) mapsize)
                     else ""
     {-Imprimindo as bordas direitas-}
-    | j == mapsize = if (i < mapsize)
-                    then ("│\n" ++ showB m (i+1,0) mapsize)
+    | i == mapsize = if (j < mapsize)
+                    then ("│\n" ++ showB m (0,j+1) mapsize)
                     else "│\n"
     {-Imprimindo conteudo das casas-}
-    | otherwise = if(j == (mapsize - 1))
+    | otherwise = if(i == (mapsize - 1))
                     then if (Map.notMember t m)
-                        then ((' ') : ("" ++ showB m (i,j+1) mapsize))
-                        else ((m ! (i,j):"") ++ showB m (i,j+1) mapsize)
+                        then ((' ') : ("" ++ showB m (i+1,j) mapsize))
+                        else ((m ! (i,j):"") ++ showB m (i+1,j) mapsize)
                     else if (Map.notMember t m)
-                        then ((' ') : ("|" ++ showB m (i,j+1) mapsize))
-                        else ((m ! (i,j):"|") ++ showB m (i,j+1) mapsize)
+                        then ((' ') : ("|" ++ showB m (i+1,j) mapsize))
+                        else ((m ! (i,j):"|") ++ showB m (i+1,j) mapsize)
 
 
 {- --------------------------------------------

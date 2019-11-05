@@ -18,7 +18,7 @@ main = do
     cleanScreen
     
     let twoplayer = 1 {-Adicionar opção de escolher 1 ou 2 players-}
-    let mapsize = 4
+    let mapsize = 8
     rv <- initBoard mapsize
     playRV rv mapsize 0 twoplayer
 
