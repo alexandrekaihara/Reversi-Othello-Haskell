@@ -71,17 +71,14 @@ mapUpdate (Reversi b m) indice player = Reversi (Map.insert indice (token player
 {-Muda as fichas que estejam entre duas coordenadas-}
 changetokensline :: Reversi -> Int -> (Int, Int) -> (Int, Int) -> Int -> IO Reversi
 changetokensline rv@(Reversi b m) player t t2@(i,j) direction
-    | t /= t2   = do
-        putStrLn ("i = " ++ (show i) ++ " j = " ++ (show j)) 
-        changetokensline (mapUpdate rv t player) player (next t direction) t2 direction
+    | t /= t2   = changetokensline (mapUpdate rv t player) player (next t direction) t2 direction
     | otherwise = return (rv)
 
 {-Aplica as mudanças de peças no tabuleiro de acordo com o movimento realizado-}
 changetokens :: Reversi -> Int -> Int -> (Int, Int) -> (Int, Int) -> Int -> IO Reversi
 changetokens rv@(Reversi b m) mapsize player t@(i,j) t2@(i1,j1) direction
     | (i1 < 0 || j1 < 0 || i1 >= mapsize || j1 >= mapsize) = changetokens rv mapsize player t t (direction+1)
-    | direction < 8 = do
-        putStrLn ("i1 = " ++ (show i1) ++ " j1 = " ++ (show j1) ++ (show direction))
+    | direction < 8 = 
         if ((Map.member (next t2 direction) b) && (b ! (next t2 direction)) /= (token player))  
             then changetokens rv mapsize player t (next t2 direction) direction    
             else if ((Map.member (next t2 direction) b) && (b ! (next t2 direction)) == (token player))
@@ -154,12 +151,13 @@ next t@(i,j) direction
 analyzeBlank :: Map (Int, Int) Char -> Int -> Int -> (Int,Int) -> (Int,Int) -> Int -> Bool
 analyzeBlank m mapsize player t@(i,j) t2@(i1,j1) direction
     | (i1 < 0 || j1 < 0 || i1 >= mapsize || j1 >= mapsize) = analyzeBlank m mapsize player t t (direction+1)
-    | direction < 8 =
-        if ((Map.member (next t2 direction) m) && (m ! (next t2 direction)) /= (token player))  
-            then analyzeBlank m mapsize player t (next t2 direction) direction    
+    | direction < 8 = do
+        let vizinho = (next t2 direction)
+        if ((Map.member vizinho m) && (m ! vizinho) /= (token player))  
+            then analyzeBlank m mapsize player t vizinho direction    
             else if (Map.notMember t2 m)                              
                 then analyzeBlank m mapsize player t t (direction+1)
-                else if ((Map.member (next t2 direction) m) && (m ! (next t2 direction)) == (token player))
+                else if ((Map.member vizinho m) && (m ! vizinho) == (token player))
                     then True
                     else analyzeBlank m mapsize player t t (direction+1)    
     | otherwise = False
@@ -167,7 +165,7 @@ analyzeBlank m mapsize player t@(i,j) t2@(i1,j1) direction
 {-Retorna um reversi com todos os movimentos possíveis no mapa-}
 findMoves :: Reversi -> Int -> Int -> [(Int, Int)] -> IO Reversi
 findMoves rv@(Reversi b m) mapsize player lista@(x:xs)
-    | xs == [] = return(Reversi b m)
+    | (xs == []) = return(Reversi b m)
     | analyzeBlank b mapsize player x x 0 = findMoves (Reversi b (m ++ [x])) mapsize player xs
     | otherwise =  findMoves (Reversi b m) mapsize player xs
 
@@ -185,29 +183,39 @@ checkEnd rv@(Reversi b m) mapsize = do
     where   (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
 
 {-Executa a função principal de loop-}
-playRV :: Reversi -> Int -> Int -> Int -> IO()
-playRV rv@(Reversi b m) mapsize player twoplayer = do
-    cleanScreen                                                                             {-Limpa a tela                                 -}
-    rv1 <- (findMoves (Reversi b []) mapsize player (getAllBlanks b mapsize (0,0) []))      {-Descobre uma lista de movimentos disponíveis -}
-    showBoard rv1 mapsize                                                                   {-Printa o tabuleiro no terminal               -}
-	{-Verifica se o jogo acabou-}
-    if (checkEnd rv1 mapsize)
+playRV :: Reversi -> Int -> Int -> Int -> Int -> IO()
+playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
+    cleanScreen                                                                 {-Limpa a tela                                 -}
+    let blanks = ((getAllBlanks b mapsize (0,0) []) ++ [(-1,-1)])               {-Acha os espaços vazios no tabuleiro-}
+    rv1@(Reversi b1 m1) <- (findMoves (Reversi b []) mapsize player blanks)     {-Descobre uma lista de movimentos disponíveis -}
+    showBoard rv1 mapsize                                                       {-Printa o tabuleiro no terminal               -}
+    {-Verifica se o jogo acabou por:          -}
+    {-    -Sem movimento dos dois players;    -}
+    {-   -Um player ficou sem fichas;         -}
+    {-   -Tabuleiro foi totalmente preenchido;-}
+    if (checkEnd rv1 mapsize || (outmoves == 2))
         then do
-            if (player == 0)
+            let (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
+            if (numberofO >= numberofX)
                 then showVictory
-                else showDefeat
+                else showDefeat 
             return ()
-        {-Iterador loop dos jogadores 0 e 1-}
         else if (player == 0 || twoplayer == 1)  
-            then do
+            then if (m1 /= [])
                 {-Turno dos players-} 
-                
-                {-Falta adicionar a passada de turno caso não tenha movimentos-}
-                {-Consertar o bug de não identificar o movimento na casa (n,n)-}
-
-                move <- (getMove  rv1 mapsize player)                   {-Recebe um par ordenado como jogada           -}
-                rv2  <- changetokens rv1 mapsize player move move 0     {-Aplica o movimento e as mudanças no tabuleiro-}
-                playRV rv2 mapsize (abs(player - 1)) twoplayer
+                then do
+                    move <- (getMove  rv1 mapsize player)                   {-Recebe um par ordenado como jogada           -}
+                    rv2  <- changetokens rv1 mapsize player move move 0     {-Aplica o movimento e as mudanças no tabuleiro-}
+                    playRV rv2 mapsize (abs(player - 1)) twoplayer 0
+                else if (outmoves == 0)
+                    then do
+                        showOutOfMoves
+                        getChar
+                        let outmoves1 = 1
+                        playRV rv1 mapsize (abs(player - 1)) twoplayer outmoves1
+                    else do
+                        let outmoves1 = 2
+                        playRV rv1 mapsize (abs(player - 1)) twoplayer outmoves1
             else do
                 {-Turno da IA-}
                 cleanScreen

@@ -27,14 +27,14 @@ showEnterDialog = do
     showLines (take 25 (lines cont))
 
 {-Mensagem de vitória-}
-showDefeat :: IO()
-showDefeat = do
+showVictory :: IO()
+showVictory = do
     cont <- readFile ".entermsg"
     showLines (take 7 (drop 25 (lines cont)))
 
 {-Mensagem de derrota-}
-showVictory :: IO()
-showVictory = do
+showDefeat :: IO()
+showDefeat = do
     cont <- readFile ".entermsg"
     showLines (take 7 (drop 32 (lines cont)))
 
