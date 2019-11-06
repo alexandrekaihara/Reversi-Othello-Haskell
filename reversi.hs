@@ -139,8 +139,8 @@ getAllBlanks m mapsize t@(i,j) lista
 {-Retorna uma tupla com a direção especificada-}
 next :: (Int, Int) -> Int -> (Int, Int)
 next t@(i,j) direction
-    | direction == 0 = (i-1,j  )
-    | direction == 1 = (i-1,j-1)
+    | direction == 0 = (i-1,j-1)
+    | direction == 1 = (i-1,j  )
     | direction == 2 = (i-1,j+1)
     | direction == 3 = (i  ,j+1)
     | direction == 4 = (i+1,j+1)
@@ -177,36 +177,38 @@ findMoves rv@(Reversi b m) mapsize player lista@(x:xs)
    ---------------------------------------------}
 
 {-Verifica se o jogo acabou-}
-checkEnd :: Map (Int,Int) Char -> Int -> Bool
-checkEnd m mapsize = do
+checkEnd :: Reversi -> Int -> Bool
+checkEnd rv@(Reversi b m) mapsize = do
     if ((numberofO == 0) || (numberofX == 0) || ((numberofO + numberofX) >= (mapsize*mapsize)))
         then True
         else False
-    where (numberofO, numberofX) = (numberoftokens m (0,0) mapsize 0 0)
+    where   (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
 
 {-Executa a função principal de loop-}
 playRV :: Reversi -> Int -> Int -> Int -> IO()
 playRV rv@(Reversi b m) mapsize player twoplayer = do
+    cleanScreen                                                                             {-Limpa a tela                                 -}
+    rv1 <- (findMoves (Reversi b []) mapsize player (getAllBlanks b mapsize (0,0) []))      {-Descobre uma lista de movimentos disponíveis -}
+    showBoard rv1 mapsize                                                                   {-Printa o tabuleiro no terminal               -}
 	{-Verifica se o jogo acabou-}
-    if (checkEnd b mapsize)
+    if (checkEnd rv1 mapsize)
         then do
-            cleanScreen
-            showBoard rv mapsize
             if (player == 0)
                 then showVictory
                 else showDefeat
             return ()
         {-Iterador loop dos jogadores 0 e 1-}
-        else if (player == 0 || twoplayer == 1)
-            
+        else if (player == 0 || twoplayer == 1)  
             then do
-                {-Turno dos players-}
-                cleanScreen   
-                rv1 <- (findMoves (Reversi b []) mapsize player (getAllBlanks b mapsize (0,0) []))      {-Descobre uma lista de movimentos disponíveis -}
-                showBoard rv1 mapsize                                                                   {-Printa o tabuleiro no terminal               -}
-                move<- (getMove  rv1 mapsize player)                                                {-Recebe um par ordenado como jogada           -}
-                rv2 <- changetokens rv1 mapsize player move move 0                                      {-Aplica o movimento e as mudanças no tabuleiro-}
+                {-Turno dos players-} 
+                
+                {-Falta adicionar a passada de turno caso não tenha movimentos-}
+                {-Consertar o bug de não identificar o movimento na casa (n,n)-}
+
+                move <- (getMove  rv1 mapsize player)                   {-Recebe um par ordenado como jogada           -}
+                rv2  <- changetokens rv1 mapsize player move move 0     {-Aplica o movimento e as mudanças no tabuleiro-}
                 playRV rv2 mapsize (abs(player - 1)) twoplayer
             else do
                 {-Turno da IA-}
                 cleanScreen
+    

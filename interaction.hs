@@ -38,6 +38,12 @@ showVictory = do
     cont <- readFile ".entermsg"
     showLines (take 7 (drop 32 (lines cont)))
 
+{-Mensagem de derrota-}
+showOutOfMoves :: IO()
+showOutOfMoves = do
+    cont <- readFile ".entermsg"
+    showLines (take 3 (drop 39 (lines cont)))
+
 {-Retorna a string com a visão do usuário de seu tabuleiro-}
 showB :: Map (Int,Int) Char -> (Int,Int) -> Int -> String
 showB m t@(i,j) mapsize 
