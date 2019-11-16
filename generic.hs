@@ -42,8 +42,7 @@ printlines [] n mapsize = []
 printlines s1 n mapsize = ((lines s1) !! n) ++ "\n" ++ 
 	(if(n+1 < mapsize)
 		then printlines s1 (n+1) mapsize
-		else "")
-	
+		else "")	
 
 {-Função que transforma uma lista de tuplas em uma 
 string contendo as tuplas-}
