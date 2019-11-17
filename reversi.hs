@@ -184,7 +184,7 @@ checkEnd rv@(Reversi b m) mapsize outmoves = do
 {- --------------------------------------------
    Funções da IA
    ---------------------------------------------}
-
+{-
 {-Verifica de que lado esta a coordenada (x, y) no tabuleiro-}
 pontuacao m player x y {-Isso era pra retornar um inteiro-}
     | (( m ! (x, y)) == 'O' && player == 0) = 1
@@ -231,6 +231,9 @@ moveIndex b ((x, y):m) mapsize player ind = do
     if ( (fst pr) > at )
         then return pr
         else return (makeTuple at ind)
+-}
+
+moveIndex _ _ _ _ _ = (makeTuple 5 5)
 
 {-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
 getIAmove (Reversi b moves) mapsize player = do {-Isso era pra retornar um par de inteiros (x, y)-}
