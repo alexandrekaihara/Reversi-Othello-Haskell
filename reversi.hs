@@ -233,7 +233,11 @@ moveIndex b ((x, y):m) mapsize player ind = do
         else return (makeTuple at ind)
 
 {-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
-getIAmove (Reversi b moves) mapsize player = (moves !! (snd (moveIndex b moves 0 mapsize player))) {-Isso era pra retornar um par de inteiros (x, y)-}
+getIAmove (Reversi b moves) mapsize player = do {-Isso era pra retornar um par de inteiros (x, y)-}
+    let par = moves !! (snd (moveIndex b moves mapsize player 0))
+        x = show (fst par)
+        y = show (snd par)
+    return (makeTuple x y)
 
 {- --------------------------------------------
    Função principal de loop do jogo
