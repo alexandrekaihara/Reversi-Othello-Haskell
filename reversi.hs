@@ -208,14 +208,14 @@ evaluate_h b mapsize player x
     | otherwise = evaluate_v b mapsize player x 0 + evaluate_h b mapsize player x+1 
     
 {-Funcao min da arvore minimax-}
-mini b _ 12 mapsize player = evaluate_v b mapsize player 0
+mini b _ 6 mapsize player = evaluate_v b mapsize player 0
 mini b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
     return min (mini b m nivel mapsize player) (imax newb moves nivel+1 mapsize player)
 
 {-Funcao max da arvore minimax-}
-imax b _ 12 mapsize player = evaluate_v b mapsize player 0
+imax b _ 6 mapsize player = evaluate_v b mapsize player 0
 imax b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
