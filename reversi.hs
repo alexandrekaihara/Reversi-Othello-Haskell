@@ -220,6 +220,9 @@ imax b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
     return max (imax b m nivel mapsize player) (mini newb moves nivel+1 mapsize player)
+-}
+
+imax _ _ _ _ _ = 5
 
 {-Inicializa a arvore minimax de cada uma das possibilidades de movimentos e retorna o indice do melhor-}
 moveIndex _ ((_, _):[]) _ _ ind' = makeTuple (-1000 ind') {-Isso era pra retornar um par de inteiros (x, y)-}
@@ -229,11 +232,9 @@ moveIndex b ((x, y):m) mapsize player ind = do
         pr = moveIndex b m ind+1 mapsize player
         at = imax newb moves 0 mapsize player
     if ( (fst pr) > at )
-        then return pr
-        else return (makeTuple at ind)
--}
+        then return (makeTuple (show fst pr) (show snd pr))
+        else return (makeTuple (show at) (show ind))
 
-moveIndex _ _ _ _ _ = (makeTuple 5 5)
 
 {-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
 getIAmove (Reversi b moves) mapsize player = do {-Isso era pra retornar um par de inteiros (x, y)-}
