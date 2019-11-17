@@ -186,7 +186,7 @@ checkEnd rv@(Reversi b m) mapsize outmoves = do
    ---------------------------------------------}
 
 {-Verifica de que lado esta a coordenada (x, y) no tabuleiro-}
-pontuacao m player x y
+pontuacao m player x y {-Isso era pra retornar um inteiro-}
     | (( m ! (x, y)) == 'O' && player == 0) = 1
     | (( m ! (x, y)) == 'O' && player == 1) = -1
     | (( m ! (x, y)) == 'X' && player == 0) = -1
@@ -194,7 +194,7 @@ pontuacao m player x y
     | otherwise = 0
 
 {-Adiciona um valor com peso à soma que indica se a posição atual do tabuleiro é boa ou ruim-}
-evaluate_v b mapsize player x y
+evaluate_v b mapsize player x y {-Isso era pra retornar um inteiro-}
     | (x == 0 || x == (mapsize - 1)) && (y == 0 || y == (mapsize - 1)) = 25*(pontuacao b player x y)
     | (x == 0 || x == 1 || x == (mapsize - 1) || x == (mapsize -2 )) && (y == 1 || y == (mapsize - 2)) = -10*(pontuacao b player x y)
     | (x == 1 || x == (mapsize - 2)) && (y == 0 || y == (mapsize - 1)) = -10*(pontuacao b player x y)
@@ -203,26 +203,26 @@ evaluate_v b mapsize player x y
     | otherwise = (pontuacao b player x y)
 
 {-Percorre o mapa no eixo horizontal, formando uma soma que indica se a posição atual do tabuleiro é boa ou ruim-}
-evaluate_h b mapsize player x
+evaluate_h b mapsize player x {-Isso era pra retornar um inteiro-}
     | x == (mapsize - 1) = evaluate_v b mapsize player x 0 
     | otherwise = evaluate_v b mapsize player x 0 + evaluate_h b mapsize player x+1 
     
 {-Funcao min da arvore minimax-}
-mini b _ 6 mapsize player = evaluate_v b mapsize player 0
+mini b _ 6 mapsize player = evaluate_v b mapsize player 0 {-Isso era pra retornar um inteiro-}
 mini b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
     return min (mini b m nivel mapsize player) (imax newb moves nivel+1 mapsize player)
 
 {-Funcao max da arvore minimax-}
-imax b _ 6 mapsize player = evaluate_v b mapsize player 0
+imax b _ 6 mapsize player = evaluate_v b mapsize player 0 {-Isso era pra retornar um inteiro-}
 imax b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
     return max (imax b m nivel mapsize player) (mini newb moves nivel+1 mapsize player)
 
 {-Inicializa a arvore minimax de cada uma das possibilidades de movimentos e retorna o indice do melhor-}
-moveIndex _ ((_, _):[]) _ _ ind' = makeTuple (-1000 ind')
+moveIndex _ ((_, _):[]) _ _ ind' = makeTuple (-1000 ind') {-Isso era pra retornar um par de inteiros (x, y)-}
 moveIndex b ((x, y):m) mapsize player ind = do
     let newb = changetokens b mapsize player x y
         moves = (getMove newb mapsize player) 
@@ -233,7 +233,7 @@ moveIndex b ((x, y):m) mapsize player ind = do
         else return (makeTuple at ind)
 
 {-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
-getIAmove (Reversi b moves) mapsize player = (moves !! (snd (moveIndex b moves 0 mapsize player)))
+getIAmove (Reversi b moves) mapsize player = (moves !! (snd (moveIndex b moves 0 mapsize player))) {-Isso era pra retornar um par de inteiros (x, y)-}
 
 {- --------------------------------------------
    Função principal de loop do jogo
