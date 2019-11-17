@@ -169,13 +169,6 @@ findMoves rv@(Reversi b m) mapsize player lista@(x:xs)
     | analyzeBlank b mapsize player x x 0 = findMoves (Reversi b (m ++ [x])) mapsize player xs
     | otherwise =  findMoves (Reversi b m) mapsize player xs
 
-
-{- --------------------------------------------
-   Funções da IA
-   ---------------------------------------------}
-
-
-
 {- --------------------------------------------
    Funções de controle do jogo
    ---------------------------------------------}
@@ -188,7 +181,63 @@ checkEnd rv@(Reversi b m) mapsize outmoves = do
         else False
     where   (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
 
-{-Executa a função principal de loop-}
+{- --------------------------------------------
+   Funções da IA
+   ---------------------------------------------}
+
+{-Verifica de que lado esta a coordenada (x, y) no tabuleiro-}
+pontuacao m player x y
+    | (( m ! (x, y)) == 'O' && player == 0) = 1
+    | (( m ! (x, y)) == 'O' && player == 1) = -1
+    | (( m ! (x, y)) == 'X' && player == 0) = -1
+    | (( m ! (x, y)) == 'X' && player == 1) = 1
+    | otherwise = 0
+
+{-Adiciona um valor com peso à soma que indica se a posição atual do tabuleiro é boa ou ruim-}
+evaluate_v b mapsize player x y
+    | (x == 0 || x == (mapsize - 1)) && (y == 0 || y == (mapsize - 1)) = 25*(pontuacao b player x y)
+    | (x == 0 || x == 1 || x == (mapsize - 1) || x == (mapsize -2 )) && (y == 1 || y == (mapsize - 2)) = -10*(pontuacao b player x y)
+    | (x == 1 || x == (mapsize - 2)) && (y == 0 || y == (mapsize - 1)) = -10*(pontuacao b player x y)
+    | (x == 0 || x == (mapsize - 1) || y == 0 || y == (mapsize - 1)) = 15*(pontuacao b player x y)
+    | (y == 1 || y == (mapsize - 2) || x == 1 || x == (mapsize - 2)) = -2*(pontuacao b player x y)
+    | otherwise = (pontuacao b player x y)
+
+{-Percorre o mapa no eixo horizontal, formando uma soma que indica se a posição atual do tabuleiro é boa ou ruim-}
+evaluate_h b mapsize player x
+    | x == (mapsize - 1) = evaluate_v b mapsize player x 0 
+    | otherwise = evaluate_v b mapsize player x 0 + evaluate_h b mapsize player x+1 
+    
+{-Funcao min da arvore minimax-}
+mini b _ 12 mapsize player = evaluate_v b mapsize player 0
+mini b ((x, y):m) nivel mapsize player = do
+    let newb = changetokens b mapsize player x y
+        moves = getMove newb mapsize player
+    return min (mini b m nivel mapsize player) (imax newb moves nivel+1 mapsize player)
+
+{-Funcao max da arvore minimax-}
+imax b _ 12 mapsize player = evaluate_v b mapsize player 0
+imax b ((x, y):m) nivel mapsize player = do
+    let newb = changetokens b mapsize player x y
+        moves = getMove newb mapsize player
+    return max (imax b m nivel mapsize player) (mini newb moves nivel+1 mapsize player)
+
+{-Inicializa a arvore minimax de cada uma das possibilidades de movimentos e retorna o indice do melhor-}
+moveIndex _ ((_, _):[]) _ _ ind' = makeTuple (-1000 ind')
+moveIndex b ((x, y):m) mapsize player ind = do
+    let newb = changetokens b mapsize player x y
+        moves = (getMove newb mapsize player) 
+        pr = moveIndex b m ind+1 mapsize player
+        at = imax newb moves 0 mapsize player
+    if ( (fst pr) > at )
+        then return pr
+        else return (makeTuple at ind)
+
+{-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
+getIAmove (Reversi b moves) mapsize player = (moves !! (snd (moveIndex b moves 0 mapsize player)))
+
+{- --------------------------------------------
+   Função principal de loop do jogo
+   ---------------------------------------------}
 playRV :: Reversi -> Int -> Int -> Int -> Int -> IO()
 playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
     cleanScreen                                                                 {-Limpa a tela                                 -}
@@ -204,7 +253,7 @@ playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
             let (numberofO, numberofX) = (numberoftokens b (0,0) mapsize 0 0)
             if (numberofO >= numberofX)
                 then showVictory
-                else showDefeat 
+                else showDefeat
             return ()
         else if (player == 0 || twoplayer == 1)  
             then if (m1 /= [])
@@ -223,6 +272,8 @@ playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
                         let outmoves1 = 2
                         playRV rv1 mapsize (abs(player - 1)) twoplayer outmoves1
             else do
-                {-Turno da IA-}
+                move <- (getIAmove rv1 mapsize player)
+                rv2 <- changetokens rv1 mapsize player move move 0
+                playRV rv2 mapsize (abs(player - 1)) twoplayer 0
                 cleanScreen
     
