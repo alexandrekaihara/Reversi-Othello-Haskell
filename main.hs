@@ -3,7 +3,6 @@ module Main where
 import Generic
 import Reversi
 import Data.Char
-import ReversiIA
 import Interaction
 import Data.Map (Map, (!))
 import qualified Data.Map as Map

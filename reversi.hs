@@ -220,28 +220,31 @@ imax b ((x, y):m) nivel mapsize player = do
     let newb = changetokens b mapsize player x y
         moves = getMove newb mapsize player
     return max (imax b m nivel mapsize player) (mini newb moves nivel+1 mapsize player)
--}
+
 
 imax _ _ _ _ _ = 5
 
 {-Inicializa a arvore minimax de cada uma das possibilidades de movimentos e retorna o indice do melhor-}
-moveIndex _ ((_, _):[]) _ _ ind' = makeTuple (-1000 ind') {-Isso era pra retornar um par de inteiros (x, y)-}
-moveIndex b ((x, y):m) mapsize player ind = do
-    let newb = changetokens b mapsize player x y
-        moves = (getMove newb mapsize player) 
-        pr = moveIndex b m ind+1 mapsize player
-        at = imax newb moves 0 mapsize player
+moveIndex :: Reversi -> Int -> Int -> Int -> (Int, Int)
+moveIndex rv@(Reversi b []) _ _ _ = (-1000::Int, -1000::Int)
+moveIndex rv@(Reversi b ((x, y):m)) mapsize player ind = do
+    rv1 <- changetokens (Reversi b m) mapsize player (x, y) (x, y) 0
+    let blanks = ((getAllBlanks b mapsize (0,0) []) ++ [(-1,-1)])  
+        movimentos = (findMoves rv1 mapsize player blanks) 
+        pr = moveIndex (Reversi b m) mapsize player (ind+1)                 
+        at = imax rv1 movimentos 0 mapsize player
     if ( (fst pr) > at )
-        then return (makeTuple (show fst pr) (show snd pr))
-        else return (makeTuple (show at) (show ind))
-
+        then pr
+        else (at, ind)
 
 {-Escolhe o melhor movimento da IA dentro da lista de movimentos possiveis-}
-getIAmove (Reversi b moves) mapsize player = do {-Isso era pra retornar um par de inteiros (x, y)-}
-    let par = moves !! (snd (moveIndex b moves mapsize player 0))
+getIAmove :: Reversi -> Int -> Int -> (Int, Int)
+getIAmove rv@(Reversi b moves) mapsize player = do {-Isso era pra retornar um par de inteiros (x, y)-}
+    let par = moves !! (snd (moveIndex rv mapsize player 0))
         x = show (fst par)
         y = show (snd par)
-    return (makeTuple x y)
+    (makeTuple x y)
+-}
 
 {- --------------------------------------------
    Função principal de loop do jogo
@@ -280,8 +283,10 @@ playRV rv@(Reversi b m) mapsize player twoplayer outmoves = do
                         let outmoves1 = 2
                         playRV rv1 mapsize (abs(player - 1)) twoplayer outmoves1
             else do
-                move <- (getIAmove rv1 mapsize player)
+                {-IA-}
+                print(5)
+                {-let move = (getIAmove rv1 mapsize player)
                 rv2 <- changetokens rv1 mapsize player move move 0
                 playRV rv2 mapsize (abs(player - 1)) twoplayer 0
-                cleanScreen
+                cleanScreen-}
     
