@@ -15,6 +15,9 @@ Reversi ou Othello é um jogo de tabuleiro de estratégia para duas pessoas joga
  Para compilar o programa execute:
  > ghc main.hs
  
+ Para executar basta clicar duas vezes no main.exe no caso de Windows ou em Linux:
+ > ./main
+ 
  # Como jogar
  Para jogar, pressione a tecla enter para iniciar o jogo. O jogo não conta com uma inteligência artificial, portanto são dois players. Cada jogada é a vez de um jogador. Será exibido na tela quais são as coordenadas de onde podem ser colocadas peças no tebuleiro. Para jogar escolha uma coordenada, por exemplo (2,3). Digite 2 e pressione enter e 3 e pressione enter.
  
