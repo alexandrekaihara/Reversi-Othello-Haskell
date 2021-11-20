@@ -10,7 +10,7 @@ import qualified Data.Map as Map
 {-Representação do jogo: Tabuleiro e duas listas de movimentos possíveis.-}
 data Reversi = Reversi (Board) Moves deriving (Show)
 
-{-Tabuleiro dos navios do usuário-}
+{-Tabuleiro das peças    do usuário-}
 type Board  = Map (Int,Int) Char
 {-Lista de tuplas, para o pc e o player saberem as jogadas possíveis-}
 type Moves = [(Int,Int)] 
